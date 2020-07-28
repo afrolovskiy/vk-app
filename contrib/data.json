@@ -1,0 +1,1 @@
+[{"model": "app.item", "pk": 1, "fields": {"name": "item1", "title": "300 \u0437\u043e\u043b\u043e\u0442\u044b\u0445 \u043c\u043e\u043d\u0435\u0442", "price": 1, "photo_url": "http://vk.com/images/gifts/256/506.jpg", "discount": null, "expiration": null}}]

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+        crossorigin="anonymous">
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+    <!-- Vk.com Javascript SDK -->
+    <script src="https://vk.com/js/api/xd_connection.js?2" type="text/javascript"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>My Test App</h1>
+
+        <!-- See documentation at https://vk.com/dev/payments_dialog -->
+        <h2>showOrderBox</h2>
+        <form id="showOrderBox_form">
+            <div class="form-group">
+                <label for="showOrderBox_type">Order type:</label>
+                <select name="order_type" id="showOrderBox_type" class="form-control">
+                    <!-- окно для ввода голосов на счёт приложения -->
+                    <option value="votes" selected>votes</option>
+
+                    <!-- окно со списком специальных предложений (офферов), которые могут быть использованы пользователем для получения голосов -->
+                    <option value="offers">offers</option>
+
+                    <!-- покупка товара -->
+                    <option value="item">item</option>
+                </select>
+            </div>
+
+            <!-- количество голосов для ввода на счёт приложения -->
+            <div id="showOrderBox_votes_group" class="form-group">
+                <label for="showOrderBox_votes">Count</label>
+                <input type="number" id="showOrderBox_votes" class="form-control" min="1" max="100" step="1">
+            </div>
+
+            <!-- идентификатор рекламной акции -->
+            <div class="form-group" id="showOrderBox_offer_id_group" style="display: none;">
+                <label for="showOrderBox_offer_id">ID</label>
+                <input type="number" id="showOrderBox_offer_id" class="form-control">
+            </div>
+
+            <!-- наименование товара -->
+            <div class="form-group" id="showOrderBox_item_group" style="display: none;">
+                <label for="showOrderBox_item">Name</label>
+                <input type="text" id="showOrderBox_item" class="form-control">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Купить</button>
+        </form>
+    </div>
+
+    <script type="text/javascript">
+        $('#showOrderBox_type').on('change', function (e) {
+            const orderType = $('option:selected', this).val();
+            switch (orderType) {
+                case 'votes':
+                    $('#showOrderBox_votes_group').show();
+                    $('#showOrderBox_offer_id_group').hide();
+                    $('#showOrderBox_item_group').hide();
+                    break;
+                case 'offers':
+                    $('#showOrderBox_votes_group').hide();
+                    $('#showOrderBox_offer_id_group').show();
+                    $('#showOrderBox_item_group').hide();
+                    break;
+                case 'item':
+                    $('#showOrderBox_votes_group').hide();
+                    $('#showOrderBox_offer_id_group').hide();
+                    $('#showOrderBox_item_group').show();
+                    break;
+            }
+        });
+
+        // Javascript SDK doc here https://vk.com/dev/Javascript_SDK
+        VK.init(function () {
+            // API initialization succeeded
+
+            // showOrderBox doc here https://vk.com/dev/payments_dialog
+            VK.addCallback('onOrderSuccess', function (order_id) {
+                alert('onOrderSuccess ' + order_id);
+            });
+            VK.addCallback('onOrderFail', function () {
+                alert('onOrderFail');
+            });
+            VK.addCallback('onOrderCancel', function () {
+                alert('onOrderCancel');
+            });
+
+            $('#showOrderBox_form').submit(function (event) {
+                event.preventDefault();
+
+                console.log('$("#showOrderBox_form").submit(function (event) {');
+
+                const orderType = $('#showOrderBox_type').find(":selected").val();
+                switch (orderType) {
+                    case 'votes':
+                        VK.callMethod('showOrderBox', {
+                            type: 'votes',
+                            'votes': $('#showOrderBox_votes').val()
+                        });
+                        break;
+                    case 'offers':
+                        VK.callMethod('showOrderBox', {
+                            type: 'votes',
+                            'offer_id': $('#showOrderBox_offer_id').val()
+                        });
+                        break;
+                    case 'item':
+                        VK.callMethod('showOrderBox', {
+                            type: 'item',
+                            'item': $('#showOrderBox_item').val()
+                        });
+                        break;
+                }
+            });
+        }, function () {
+            // API initialization failed
+            // Can reload page here
+        }, '5.120');
+    </script>
+</body>
+
+</html>
