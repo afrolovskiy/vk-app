@@ -5,6 +5,7 @@ class Notification(models.Model):
     notification_type = models.CharField(max_length=128, blank=True, null=True)
     order_id = models.BigIntegerField()
     data = models.CharField(max_length=32768)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "app_notification"
@@ -28,6 +29,7 @@ class Order(models.Model):
     app_id = models.BigIntegerField()
     user_id = models.BigIntegerField()
     order_id = models.BigIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "app_order"
