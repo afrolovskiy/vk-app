@@ -66,12 +66,24 @@ def callback(request):
 
     elif notif_type in (CALLBACK_ORDER_STATUS_CHANGE, CALLBACK_ORDER_STATUS_CHANGE_TEST):
         # See documentation at https://vk.com/dev/payments_status
-        if request.POST["status"] == ORDER_STATUS_CHARGEABLE:
+        status = request.POST["status"]
+        if status == ORDER_STATUS_CHARGEABLE:
             order = models.Order.objects.create(
                 app_id=request.POST["app_id"],
                 user_id=request.POST["user_id"],
                 order_id=request.POST["order_id"],
             )
+            return ResponseOk({"order_id": order.order_id, "app_order_id": order.id})
+        elif status == ORDER_STATUS_REFUNDED:
+            try:
+                order = models.Order.objects.get(
+                    app_id=request.POST["app_id"],
+                    user_id=request.POST["user_id"],
+                    order_id=request.POST["order_id"],
+                )
+            except models.Order.DoesNotExist:
+                return ResponseError(ERROR_CODE_ITEM_NOT_FOUND, "Заказ не найден.", True)
+
             return ResponseOk({"order_id": order.order_id, "app_order_id": order.id})
         else:
             return ResponseError(ERROR_CODE_STATUS_UNKNOWN, "Неизвестный статус.")
