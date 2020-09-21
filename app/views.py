@@ -38,16 +38,16 @@ def callback(request):
     if request.method != "POST":
         return HttpResponseNotFound()
 
-    sign = request.POST.get("sig")
-    if calc_signature(request.POST) != sign:
-        return ResponseError(ERROR_CODE_SIGNATURE_INVALID, "Некорректная подпись.", True)
-
     notif_type = request.POST["notification_type"]
     models.Notification.objects.create(
         notification_type=notif_type,
         order_id=request.POST["order_id"],
         data=json.dumps(request.POST, sort_keys=True),
     )
+
+    sign = request.POST.get("sig")
+    if calc_signature(request.POST) != sign:
+        return ResponseError(ERROR_CODE_SIGNATURE_INVALID, "Некорректная подпись.", True)
 
     if settings.DEBUG:
         pretty_input = json.dumps(request.POST, sort_keys=True, indent=4, separators=(",", ": "))
