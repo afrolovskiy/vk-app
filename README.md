@@ -10,19 +10,21 @@ Python 3 + venv, Sqlite, NGrok
 1. Register application here:
 https://vk.com/editapp?act=create
 
-2. Run application server:
+2. Specify API_SECRET_KEY (see here https://vk.com/editapp?id=YourAppID&section=options) in settings/local.py
+
+3. Run application server:
 ```bash
 make initdev migrate run
 ngrok http 8000
 ```
 
-3. Set up IFrame address here:
+4. Set up IFrame address here:
 https://vk.com/editapp?id=YourAppID&section=options
 
-4. Set up payment callback address here:
+5. Set up payment callback address here:
 https://vk.com/editapp?id=YourAppID&section=payments
 
-5. Go to application page
+6. Go to application page
 https://vk.com/appYourAppID
 
 

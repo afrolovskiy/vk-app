@@ -1,4 +1,5 @@
 import json
+import hashlib
 
 from django.conf import settings
 from django.http import HttpResponseNotFound, JsonResponse
@@ -19,6 +20,7 @@ CALLBACK_ORDER_STATUS_CHANGE_TEST = CALLBACK_ORDER_STATUS_CHANGE + CALLBACK_TEST
 ORDER_STATUS_CHARGEABLE = "chargeable"
 ORDER_STATUS_REFUNDED = "refunded"
 
+ERROR_CODE_SIGNATURE_INVALID = 10
 ERROR_CODE_ITEM_NOT_FOUND = 20
 ERROR_CODE_STATUS_UNKNOWN = 101
 
@@ -36,8 +38,9 @@ def callback(request):
     if request.method != "POST":
         return HttpResponseNotFound()
 
-    # TODO(afrolovskiy): check signature
-    # TODO(afrolovskiy): check POST data
+    sign = request.POST.get("sig")
+    if calc_signature(request.POST) != sign:
+        return ResponseError(ERROR_CODE_SIGNATURE_INVALID, "Некорректная подпись.", True)
 
     notif_type = request.POST["notification_type"]
     models.Notification.objects.create(
@@ -90,6 +93,16 @@ def callback(request):
 
     else:
         return HttpResponseNotFound()
+
+
+def calc_signature(data):
+    m = hashlib.md5()
+    for k in sorted(data.keys()):
+        if k != "sig":
+            s = k + "=" + data[k]
+            m.update(s.encode("utf-8"))
+    m.update(settings.API_SECRET_KEY.encode("utf-8"))
+    return m.hexdigest()
 
 
 class ResponseOk(JsonResponse):
